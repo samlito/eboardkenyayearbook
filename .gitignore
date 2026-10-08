@@ -1,0 +1,21 @@
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+/nbproject/private/
+
+# User uploads (personal documents, branding) - never commit
+/public/images/attachments/
+/public/uploads/
+/public/upload/

@@ -1,0 +1,1058 @@
+<title>E-Board Governance Platform</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --navy: #003B71;
+  --blue: #0072BC;
+  --green: #009B3A;
+  --orange: #F7941D;
+  --deep: #001A33;
+  --light: #F0F5FA;
+  --white: #FFFFFF;
+  --text: #1A2A3A;
+  --muted: #5A6A7A;
+  --subtle: #C8D6E0;
+  --card-bg: #FFFFFF;
+  --card-border: #E0E8F0;
+  --slide-shadow: 0 4px 40px rgba(0,30,60,0.10);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background: #0A1628;
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+}
+
+.deck {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5vh 7vw;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateX(40px);
+  overflow-y: auto;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+.slide.exiting {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+/* Slide grounds */
+.slide--navy { background: var(--navy); color: var(--white); }
+.slide--deep { background: var(--deep); color: var(--white); }
+.slide--light { background: var(--light); color: var(--text); }
+.slide--white { background: var(--white); color: var(--text); }
+.slide--green { background: var(--green); color: var(--white); }
+
+.slide--navy .muted, .slide--deep .muted { color: #8AAFC8; }
+.slide--green .muted { color: #C0E8D0; }
+.slide--light .muted, .slide--white .muted { color: var(--muted); }
+
+/* Typography */
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(0.65rem, 1vw, 0.8rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  margin-bottom: 1.2rem;
+}
+
+.slide--navy .eyebrow, .slide--deep .eyebrow { color: var(--orange); }
+.slide--light .eyebrow, .slide--white .eyebrow { color: var(--blue); }
+.slide--green .eyebrow { color: #FFD580; }
+
+h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+  text-wrap: balance;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin-bottom: 1.2rem;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1rem, 1.6vw, 1.3rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 0.6rem;
+}
+
+p, li {
+  font-size: clamp(0.85rem, 1.3vw, 1.05rem);
+  line-height: 1.6;
+}
+
+.lead {
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+.slide--navy .lead, .slide--deep .lead { color: #B8D4E8; }
+
+/* Cover slide */
+.cover { text-align: center; align-items: center; }
+.cover h1 { font-size: clamp(2.4rem, 5vw, 4rem); margin-bottom: 0.8rem; }
+.cover-sub {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+  font-weight: 500;
+  color: #8AAFC8;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.5px;
+}
+.cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  padding: 0.55rem 1.4rem;
+  font-size: clamp(0.7rem, 1vw, 0.82rem);
+  font-weight: 600;
+  color: var(--orange);
+  letter-spacing: 0.5px;
+  margin-bottom: 3rem;
+}
+.cover-logo {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  letter-spacing: 1px;
+  color: var(--white);
+  margin-bottom: 0.3rem;
+}
+.cover-logo span { color: var(--orange); }
+.cover-presented {
+  font-size: clamp(0.7rem, 1vw, 0.82rem);
+  color: #6A8AA0;
+  margin-top: 2rem;
+  font-weight: 500;
+}
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; margin-top: 1.5rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.4rem; margin-top: 1.5rem; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2rem; margin-top: 1.5rem; }
+
+/* Cards */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+.slide--navy .card, .slide--deep .card {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+}
+.slide--green .card {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.card-icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 0.9rem;
+  font-weight: 700;
+}
+.card-icon--blue { background: rgba(0,114,188,0.12); color: var(--blue); }
+.card-icon--green { background: rgba(0,155,58,0.12); color: var(--green); }
+.card-icon--orange { background: rgba(247,148,29,0.12); color: var(--orange); }
+.card-icon--navy { background: rgba(0,59,113,0.12); color: var(--navy); }
+
+.slide--navy .card-icon--blue, .slide--deep .card-icon--blue { background: rgba(0,114,188,0.25); color: #60B8FF; }
+.slide--navy .card-icon--green, .slide--deep .card-icon--green { background: rgba(0,155,58,0.25); color: #60D890; }
+.slide--navy .card-icon--orange, .slide--deep .card-icon--orange { background: rgba(247,148,29,0.25); color: #FFB860; }
+.slide--navy .card-icon--navy, .slide--deep .card-icon--navy { background: rgba(255,255,255,0.12); color: #80C0F0; }
+
+.card h3 { font-size: clamp(0.85rem, 1.2vw, 1rem); }
+.card p { font-size: clamp(0.75rem, 1vw, 0.85rem); color: var(--muted); line-height: 1.5; }
+.slide--navy .card p, .slide--deep .card p { color: #8AAFC8; }
+.slide--green .card p { color: #C0E8D0; }
+
+/* Stat blocks */
+.stat { text-align: center; padding: 1rem; }
+.stat-value {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 800;
+  color: var(--orange);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #8AAFC8;
+}
+
+/* Workflow pipeline */
+.pipeline {
+  display: flex;
+  gap: 0;
+  margin-top: 1.5rem;
+  position: relative;
+}
+.pipeline-step {
+  flex: 1;
+  text-align: center;
+  padding: 0.8rem 0.3rem;
+  position: relative;
+}
+.pipeline-num {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--blue);
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+.pipeline-step:nth-child(even) .pipeline-num { background: var(--green); }
+.pipeline-step:nth-child(3n) .pipeline-num { background: var(--orange); }
+.pipeline-label {
+  font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+  font-weight: 600;
+  line-height: 1.3;
+  color: #B8D4E8;
+}
+.pipeline-line {
+  position: absolute;
+  top: 1.75rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.12);
+  z-index: 0;
+}
+
+/* List styles */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.feature-list li {
+  padding-left: 1.6rem;
+  position: relative;
+  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+}
+.feature-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--green);
+}
+.slide--navy .feature-list li::before { background: var(--orange); }
+
+/* Tag */
+.tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  margin-right: 0.4rem;
+}
+.tag--green { background: rgba(0,155,58,0.15); color: var(--green); }
+.tag--orange { background: rgba(247,148,29,0.15); color: #D06A00; }
+
+.slide--navy .tag--green { background: rgba(0,155,58,0.25); color: #60D890; }
+.slide--navy .tag--orange { background: rgba(247,148,29,0.25); color: #FFB860; }
+
+/* Two-column with accent strip */
+.split {
+  display: grid;
+  grid-template-columns: 5px 1fr 1fr;
+  gap: 0;
+  height: 100vh;
+  position: absolute;
+  inset: 0;
+}
+.split-accent { background: var(--orange); }
+.split-left, .split-right {
+  padding: 5vh 4vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Comparison table */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.2rem;
+  font-size: clamp(0.7rem, 0.95vw, 0.82rem);
+}
+.compare-table th {
+  background: var(--navy);
+  color: var(--white);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.65rem, 0.85vw, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.compare-table td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--card-border);
+}
+.compare-table tr:nth-child(even) td { background: #F6F9FC; }
+.compare-table .check { color: var(--green); font-weight: 700; }
+.compare-table .cross { color: #CC3333; }
+.compare-table .partial { color: var(--orange); }
+
+/* Audience pills */
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.audience-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1.2rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+}
+.audience-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: rgba(0,114,188,0.2);
+  flex-shrink: 0;
+}
+.audience-text {
+  font-size: clamp(0.72rem, 1vw, 0.85rem);
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.3;
+}
+
+/* CTA slide */
+.cta-box {
+  background: rgba(247,148,29,0.12);
+  border: 2px solid var(--orange);
+  border-radius: 14px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  max-width: 36rem;
+  align-self: center;
+}
+.cta-box h3 { color: var(--orange); font-size: clamp(1.1rem, 1.6vw, 1.3rem); }
+.cta-box p { color: #8AAFC8; margin-top: 0.5rem; }
+
+/* Navigation */
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3.2rem;
+  background: rgba(0,20,40,0.92);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 100;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.nav-counter {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6A8AA0;
+  font-variant-numeric: tabular-nums;
+  min-width: 5rem;
+}
+.nav-progress {
+  flex: 1;
+  max-width: 20rem;
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin: 0 1.5rem;
+  overflow: hidden;
+}
+.nav-progress-fill {
+  height: 100%;
+  background: var(--orange);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.nav-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+.nav-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #8AAFC8;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.15); color: var(--white); }
+.nav-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.nav-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #4A6A80;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 900px) {
+  .grid-3, .grid-4, .grid-5 { grid-template-columns: repeat(2, 1fr); }
+  .pipeline { flex-wrap: wrap; }
+  .pipeline-step { flex: 0 0 20%; }
+  .audience-grid { grid-template-columns: 1fr 1fr; }
+  .split { grid-template-columns: 4px 1fr; }
+  .split-right { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide { transition: none; }
+  .nav-progress-fill { transition: none; }
+}
+</style>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: Cover -->
+  <div class="slide slide--deep cover active" data-slide="1">
+    <div class="cover-badge">Presented to ICT Authority Kenya</div>
+    <div class="cover-logo">E<span>-</span>BOARD</div>
+    <h1>Digital Board<br>Governance Platform</h1>
+    <p class="cover-sub">Centralizing board operations, meeting management<br>and institutional accountability</p>
+    <p class="cover-presented">Losvinca Technology Solutions</p>
+  </div>
+
+  <!-- SLIDE 2: The Governance Challenge -->
+  <div class="slide slide--white" data-slide="2">
+    <p class="eyebrow">The Challenge</p>
+    <h2>Board Governance in Kenyan Institutions Is Still Largely Manual</h2>
+    <p class="lead muted">Most government bodies, state corporations, and public institutions still manage board operations through fragmented, manual processes that create governance risks.</p>
+    <div class="grid-4" style="margin-top:2rem">
+      <div class="card">
+        <div class="card-icon card-icon--orange">&#9993;</div>
+        <h3>Email-Based Distribution</h3>
+        <p>Board papers circulated as email attachments with no version control or access tracking</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--blue">&#128196;</div>
+        <h3>Physical Board Packs</h3>
+        <p>Printed documents manually assembled, distributed, and often misplaced or leaked</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--green">&#128172;</div>
+        <h3>WhatsApp Communication</h3>
+        <p>Board discussions on personal messaging apps with no audit trail or institutional control</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--navy">&#128203;</div>
+        <h3>Scattered Records</h3>
+        <p>Minutes, resolutions, and action items tracked in spreadsheets or filing cabinets</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: The Cost -->
+  <div class="slide slide--navy" data-slide="3">
+    <p class="eyebrow">Why It Matters</p>
+    <h2>The Cost of Fragmented Board Processes</h2>
+    <div class="grid-4" style="margin-top:2rem">
+      <div class="stat">
+        <div class="stat-value">0%</div>
+        <div class="stat-label">Audit Trail on Email</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">72hrs</div>
+        <div class="stat-label">Typical Paper Distribution</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">40%</div>
+        <div class="stat-label">Resolutions Not Tracked</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Version Control</div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:2.5rem">
+      <div class="card">
+        <h3>Governance Risk</h3>
+        <p>No centralized record of board decisions, conflict declarations, or attendance. Audit queries go unanswered. Mwongozo compliance becomes aspirational rather than operational.</p>
+      </div>
+      <div class="card">
+        <h3>Operational Inefficiency</h3>
+        <p>Corporation Secretaries spend days assembling board packs. CEOs review papers without structured workflows. Follow-up on resolutions depends on personal memory.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Introducing E-Board -->
+  <div class="slide slide--deep" data-slide="4">
+    <p class="eyebrow">The Solution</p>
+    <h1>E-Board</h1>
+    <p class="lead">A ready-to-deploy digital governance platform that manages the entire board meeting lifecycle — from annual planning to resolution tracking — in one secure, centralized system.</p>
+    <div class="grid-3" style="margin-top:2rem">
+      <div class="card">
+        <div class="card-icon card-icon--green">&#10003;</div>
+        <h3>Purpose-Built for Governance</h3>
+        <p>Designed specifically for board and committee operations, not adapted from generic tools</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--orange">&#9889;</div>
+        <h3>Rapid Deployment</h3>
+        <p>6-step setup wizard configures the platform for any institution in under an hour</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--blue">&#127760;</div>
+        <h3>Built for Kenya</h3>
+        <p>Kenyan fiscal year, 10-day notice compliance, 47 counties, local support and hosting</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: 10-Stage Workflow -->
+  <div class="slide slide--navy" data-slide="5">
+    <p class="eyebrow">Core Architecture</p>
+    <h2>Complete 10-Stage Meeting Lifecycle</h2>
+    <p class="lead" style="margin-bottom:1rem">Every board meeting follows a structured, auditable workflow from initiation to minutes.</p>
+    <div style="position:relative">
+      <div class="pipeline-line"></div>
+      <div class="pipeline">
+        <div class="pipeline-step"><div class="pipeline-num">1</div><div class="pipeline-label">Meeting Initiation</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">2</div><div class="pipeline-label">Internal Notice</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">3</div><div class="pipeline-label">CEO Approval</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">4</div><div class="pipeline-label">Officer Assignments</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">5</div><div class="pipeline-label">Paper Preparation</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">6</div><div class="pipeline-label">Director Review</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">7</div><div class="pipeline-label">CEO Review</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">8</div><div class="pipeline-label">Agenda Building</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">9</div><div class="pipeline-label">Live Meeting</div></div>
+        <div class="pipeline-step"><div class="pipeline-num">10</div><div class="pipeline-label">Minutes Capture</div></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div class="card">
+        <h3>Multi-Stage Paper Review</h3>
+        <p>Board papers flow through Officer → Director → CEO with comments, annotations, and version tracking at each stage. Papers can be recalled and resubmitted.</p>
+      </div>
+      <div class="card">
+        <h3>Live Meeting Operations</h3>
+        <p>Digital attendance register, OTP-verified conflict of interest declarations with e-signatures, real-time agenda management, and structured minutes capture.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Board Paper Management -->
+  <div class="slide slide--light" data-slide="6">
+    <p class="eyebrow">Key Capability</p>
+    <h2>Board Paper Management</h2>
+    <p class="lead muted">A structured workflow replaces email attachments with controlled, versioned, reviewable board papers.</p>
+    <div class="grid-3" style="margin-top:1.5rem">
+      <div class="card">
+        <div class="card-icon card-icon--blue">&#128221;</div>
+        <h3>Structured Submission</h3>
+        <p>Officers prepare papers with supporting annexures. Multiple file formats supported up to 20MB per document.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--green">&#128269;</div>
+        <h3>Three-Stage Review</h3>
+        <p>Papers reviewed by Director, then CEO. Each reviewer can approve, reject with comments, or add sticky-note annotations.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--orange">&#128200;</div>
+        <h3>Version History</h3>
+        <p>Every version of a paper is retained. Rejected papers are revised and resubmitted with a complete audit trail.</p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:1rem">
+      <div class="card">
+        <div class="card-icon card-icon--navy">&#128276;</div>
+        <h3>Automated Notifications</h3>
+        <p>Email notifications at every status change — submission, review, approval, rejection. 33+ email templates for the complete workflow.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--blue">&#128274;</div>
+        <h3>Controlled Access</h3>
+        <p>Board members see only papers for their committees. Three visibility levels ensure confidential papers reach only authorized recipients.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Meeting Lifecycle -->
+  <div class="slide slide--white" data-slide="7">
+    <p class="eyebrow">Key Capability</p>
+    <h2>Meeting Lifecycle Management</h2>
+    <div class="grid-2" style="margin-top:1rem">
+      <div>
+        <ul class="feature-list">
+          <li><strong>Almanac Planning</strong> — Annual meeting schedule tied to financial year with CEO approval workflow</li>
+          <li><strong>Meeting Initiation</strong> — Create meetings from approved almanac with auto-populated details</li>
+          <li><strong>10-Day Board Notice</strong> — Automated notice generation with Kenyan governance compliance</li>
+          <li><strong>Agenda Building</strong> — Drag-and-drop agenda items, assign papers, pull down from previous meetings</li>
+          <li><strong>Attendance Tracking</strong> — Digital register with PDF and CSV export</li>
+          <li><strong>Minutes Capture</strong> — Per-agenda-item minutes with Word document export</li>
+          <li><strong>Board Resolutions</strong> — Record, assign, set due dates, and track status through completion</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <h3>Conflict of Interest Register</h3>
+          <p>Board members declare conflicts with OTP email verification and digital signature capture. Exportable as PDF or CSV for compliance records.</p>
+          <p style="margin-top:0.5rem"><span class="tag tag--green">OTP Verified</span><span class="tag tag--green">E-Signature</span></p>
+        </div>
+        <div class="card">
+          <h3>Resolution Tracking</h3>
+          <p>Every resolution is assigned to a responsible officer with a due date. Status tracked through: Pending → In Progress → Completed or Overdue.</p>
+          <p style="margin-top:0.5rem"><span class="tag tag--green">Assigned</span><span class="tag tag--orange">Due Dates</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: Board Portal -->
+  <div class="slide slide--navy" data-slide="8">
+    <p class="eyebrow">Board Member Experience</p>
+    <h2>iPad-Optimized Board Portal</h2>
+    <p class="lead">Board members access a dedicated, clean portal designed for tablet and desktop use — no training manual required.</p>
+    <div class="grid-3" style="margin-top:1.5rem">
+      <div class="card">
+        <div class="card-icon card-icon--blue">&#128197;</div>
+        <h3>Meeting Calendar</h3>
+        <p>Visual calendar showing all scheduled meetings for the member's committees</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--orange">&#128196;</div>
+        <h3>Board Papers</h3>
+        <p>View approved papers with digital sticky notes for personal annotations</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--green">&#128227;</div>
+        <h3>Official Notices</h3>
+        <p>Access meeting notices and download them directly from the portal</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--navy">&#128101;</div>
+        <h3>My Committees</h3>
+        <p>View committee memberships, details, and committee-specific documents</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--blue">&#128214;</div>
+        <h3>Document Repository</h3>
+        <p>Access categorized institutional documents with controlled visibility</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--green">&#127918;</div>
+        <h3>Active Meetings</h3>
+        <p>Join live meetings, view agenda, submit conflict declarations in real time</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Security & Compliance -->
+  <div class="slide slide--light" data-slide="9">
+    <p class="eyebrow">Security & Compliance</p>
+    <h2>Enterprise-Grade Security for Sensitive Board Information</h2>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-icon card-icon--green">&#128274;</div>
+          <h3>Two-Factor Authentication</h3>
+          <p>OTP-based 2FA via email on every login. 6-digit codes with 5-minute expiry, throttled to prevent brute force.</p>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-icon card-icon--blue">&#128100;</div>
+          <h3>Role-Based Access Control</h3>
+          <p>10 system roles with granular permissions. Each user sees only what their role allows — from Superadmin to Board Member.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon--orange">&#128272;</div>
+          <h3>Account Protection</h3>
+          <p>Automatic lockout after failed login attempts. Forced password change on first login. User status enforcement at middleware level.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-icon card-icon--navy">&#128209;</div>
+          <h3>Comprehensive Audit Trail</h3>
+          <p>Every action logged automatically — who did what, when, from where. Before-and-after values captured. IP address and browser recorded. Filterable and exportable as PDF.</p>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-icon card-icon--green">&#128221;</div>
+          <h3>Document Access Control</h3>
+          <p>Three visibility levels: all board members, committee-only, or specific named individuals. Download tracking on every document.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon--blue">&#9989;</div>
+          <h3>CSRF & Encryption</h3>
+          <p>Cross-site request forgery protection, encrypted cookies, secure session management, and API token authentication via Laravel Sanctum.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: Document Management -->
+  <div class="slide slide--navy" data-slide="10">
+    <p class="eyebrow">Institutional Memory</p>
+    <h2>Document Repository & Exports</h2>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div>
+        <h3 style="color:var(--orange);margin-bottom:1rem">Centralized Document Repository</h3>
+        <ul class="feature-list">
+          <li>Organized by categories with icons and display ordering</li>
+          <li>Supports PDF, Word, Excel, PowerPoint, CSV, images — up to 20MB</li>
+          <li>Three access tiers: all members, committee-only, or named individuals</li>
+          <li>Download tracking and access verification</li>
+          <li>Accessible to board members through the portal</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="color:var(--orange);margin-bottom:1rem">Generated Reports & Exports</h3>
+        <ul class="feature-list">
+          <li><strong>PDF:</strong> Almanac, board notices (with letterhead), attendance register, conflict register, board papers, audit logs</li>
+          <li><strong>CSV:</strong> Attendance register, conflict register (Excel-compatible UTF-8)</li>
+          <li><strong>Word:</strong> Meeting minutes with structured formatting</li>
+          <li><strong>Digital Signatures:</strong> Signature pad capture and PDF document signing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: White-Label & Deployment -->
+  <div class="slide slide--white" data-slide="11">
+    <p class="eyebrow">Deployment</p>
+    <h2>White-Label Platform with Rapid Setup</h2>
+    <p class="lead muted">E-Board adapts to any institution's identity and deploys in hours, not months.</p>
+    <div class="grid-3" style="margin-top:1.5rem">
+      <div class="card">
+        <div class="card-icon card-icon--blue">&#127912;</div>
+        <h3>Full Branding Control</h3>
+        <p>Institution logos, colors, letterhead, favicon, CEO signature image, login background — all configurable from the admin panel.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--green">&#128736;</div>
+        <h3>6-Step Setup Wizard</h3>
+        <p>Institution identity, branding, workflow settings, role labels, email configuration, and admin account — guided setup in under an hour.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon card-icon--orange">&#128204;</div>
+        <h3>Configurable Roles</h3>
+        <p>Rename any of the 10 system roles to match your institution's terminology. Customize signatory titles and reference formats.</p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:1rem">
+      <div class="card">
+        <h3>Technology Stack</h3>
+        <table class="compare-table" style="margin-top:0.5rem">
+          <tr><td><strong>Backend</strong></td><td>Laravel (PHP 8+), MySQL</td></tr>
+          <tr><td><strong>Frontend</strong></td><td>Bootstrap 5, Alpine.js, Tailwind CSS</td></tr>
+          <tr><td><strong>Hosting</strong></td><td>Self-hosted (LAMP/LEMP) or cloud</td></tr>
+          <tr><td><strong>PDF Engine</strong></td><td>DomPDF with institutional letterhead</td></tr>
+          <tr><td><strong>Documents</strong></td><td>PHPWord for Word exports</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Infrastructure Requirements</h3>
+        <table class="compare-table" style="margin-top:0.5rem">
+          <tr><td><strong>Server</strong></td><td>PHP 8.0+, MySQL 5.7+</td></tr>
+          <tr><td><strong>Web Server</strong></td><td>Apache or Nginx</td></tr>
+          <tr><td><strong>Email</strong></td><td>Any SMTP server</td></tr>
+          <tr><td><strong>Storage</strong></td><td>Scales with document volume</td></tr>
+          <tr><td><strong>SSL</strong></td><td>Required for production</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: Comparison -->
+  <div class="slide slide--light" data-slide="12">
+    <p class="eyebrow">Comparison</p>
+    <h2>E-Board vs. Current Approaches</h2>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Capability</th><th>E-Board</th><th>Email</th><th>WhatsApp</th><th>Shared Drives</th><th>Manual</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Board Paper Workflow</strong></td><td class="check">&#10003; Full 3-stage</td><td class="partial">&#9679; Attachments</td><td class="cross">&#10007;</td><td class="partial">&#9679; Files only</td><td class="cross">&#10007;</td></tr>
+        <tr><td><strong>Meeting Lifecycle</strong></td><td class="check">&#10003; 10-stage</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">&#9679; Manual</td></tr>
+        <tr><td><strong>Agenda Management</strong></td><td class="check">&#10003; Full</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">&#9679; Documents</td><td class="partial">&#9679; Paper</td></tr>
+        <tr><td><strong>Resolution Tracking</strong></td><td class="check">&#10003; Full</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">&#9679; Spreadsheet</td></tr>
+        <tr><td><strong>Audit Trail</strong></td><td class="check">&#10003; Automatic</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">&#9679; File logs</td><td class="cross">&#10007;</td></tr>
+        <tr><td><strong>Role-Based Access</strong></td><td class="check">&#10003; 10 roles</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">&#9679; Folders</td><td class="cross">&#10007;</td></tr>
+        <tr><td><strong>10-Day Notice</strong></td><td class="check">&#10003; Automated</td><td class="partial">&#9679; Manual</td><td class="partial">&#9679; Manual</td><td class="cross">&#10007;</td><td class="partial">&#9679; Manual</td></tr>
+        <tr><td><strong>Conflict of Interest</strong></td><td class="check">&#10003; OTP + Signature</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="partial">&#9679; Paper forms</td></tr>
+        <tr><td><strong>Institutional Branding</strong></td><td class="check">&#10003; Full</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
+        <tr><td><strong>Local Support</strong></td><td class="check">&#10003; Kenya</td><td>N/A</td><td>N/A</td><td class="partial">&#9679; Varies</td><td>N/A</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SLIDE 13: Who Is It For -->
+  <div class="slide slide--deep" data-slide="13">
+    <p class="eyebrow">Target Institutions</p>
+    <h2>Built for Organizations with Formal Boards</h2>
+    <div class="audience-grid">
+      <div class="audience-pill">
+        <div class="audience-icon">&#127963;</div>
+        <div class="audience-text">Government Ministries & Agencies</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#127970;</div>
+        <div class="audience-text">State Corporations</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#127963;</div>
+        <div class="audience-text">County Government Entities</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#127979;</div>
+        <div class="audience-text">Universities & Public Institutions</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#127758;</div>
+        <div class="audience-text">NGOs & Foundations</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#9878;</div>
+        <div class="audience-text">Regulatory Bodies</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#128188;</div>
+        <div class="audience-text">Professional Associations</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#127970;</div>
+        <div class="audience-text">Private Companies</div>
+      </div>
+      <div class="audience-pill">
+        <div class="audience-icon">&#128200;</div>
+        <div class="audience-text">Multi-Subsidiary Groups</div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:2rem">
+      <div class="card">
+        <h3>10 Configurable Roles</h3>
+        <p>Superadmin, CEO, Corporation Secretary, Director, Division Head, DD Internal Audit, DD ICT, Board Member, Officer, Admin</p>
+      </div>
+      <div class="card">
+        <h3>Kenyan Compliance</h3>
+        <p>July–June fiscal year, 10-day notice requirement, conflict of interest register, 47 counties pre-loaded, Mwongozo-aligned workflows</p>
+      </div>
+      <div class="card">
+        <h3>Committee Structure</h3>
+        <p>Unlimited boards and committees with audit committee designation. Members assigned across multiple committees with role-specific access.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: Implementation -->
+  <div class="slide slide--white" data-slide="14">
+    <p class="eyebrow">Implementation</p>
+    <h2>From Setup to First Meeting in Days</h2>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <h3>Phase 1: Platform Setup <span class="tag tag--green">Day 1–2</span></h3>
+          <p>Run setup wizard, configure branding, set up SMTP email, define roles and organizational structure, create admin accounts.</p>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <h3>Phase 2: Data Migration <span class="tag tag--green">Day 3–5</span></h3>
+          <p>Onboard board members with profiles and documents. Set up committees. Create financial year and almanac with meeting schedule.</p>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <h3>Phase 3: Training <span class="tag tag--green">Day 6–8</span></h3>
+          <p>Role-specific training for Corporation Secretary, CEO, Directors, and Board Members. Hands-on sessions with the actual platform.</p>
+        </div>
+        <div class="card">
+          <h3>Phase 4: Go-Live <span class="tag tag--green">Day 9–10</span></h3>
+          <p>First meeting managed through E-Board. On-site support during initial board meeting. Handover to ongoing support.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="background:var(--light);height:100%;display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <h3 style="color:var(--navy)">Support Model</h3>
+            <ul class="feature-list" style="margin-top:1rem">
+              <li>Dedicated account manager</li>
+              <li>Email and phone support</li>
+              <li>Platform updates and maintenance</li>
+              <li>User onboarding assistance</li>
+              <li>Quarterly review meetings</li>
+              <li>Data backup and recovery</li>
+            </ul>
+          </div>
+          <div style="margin-top:1.5rem;padding:1rem;background:var(--white);border-radius:8px">
+            <h3 style="color:var(--navy);font-size:0.85rem">Hosting Options</h3>
+            <p style="font-size:0.8rem;margin-top:0.3rem"><strong>On-Premise:</strong> Institution's own servers<br><strong>Cloud:</strong> Managed cloud hosting with SLA</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: Next Steps / CTA -->
+  <div class="slide slide--deep" data-slide="15" style="align-items:center;text-align:center">
+    <p class="eyebrow">Next Steps</p>
+    <h1>Ready to Digitize<br>Board Governance?</h1>
+    <p class="lead" style="max-width:44ch;margin:0 auto 2rem">We invite ICT Authority to experience E-Board through a guided demonstration and institutional pilot programme.</p>
+    <div class="grid-3" style="max-width:52rem">
+      <div class="card" style="text-align:center">
+        <div class="stat-value" style="font-size:2rem;color:var(--blue)">1</div>
+        <h3>Live Demo</h3>
+        <p>45-minute walkthrough of E-Board using your institution's workflow</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="stat-value" style="font-size:2rem;color:var(--green)">2</div>
+        <h3>30-Day Pilot</h3>
+        <p>Full platform access for one board or committee with training and support</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="stat-value" style="font-size:2rem;color:var(--orange)">3</div>
+        <h3>Go Live</h3>
+        <p>Full deployment with institutional branding, data migration, and SLA</p>
+      </div>
+    </div>
+    <div class="cta-box">
+      <h3>Losvinca Technology Solutions</h3>
+      <p>Contact us to schedule a demonstration</p>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bar">
+  <span class="nav-counter"><span id="slideNum">1</span> / 15</span>
+  <span class="nav-title">E-BOARD — LOSVINCA</span>
+  <div class="nav-progress"><div class="nav-progress-fill" id="progressBar" style="width:6.67%"></div></div>
+  <div class="nav-btns">
+    <button class="nav-btn" onclick="prevSlide()" aria-label="Previous slide">&#9664;</button>
+    <button class="nav-btn" onclick="nextSlide()" aria-label="Next slide">&#9654;</button>
+  </div>
+</div>
+
+<script>
+let current = 1;
+const total = 15;
+
+function goToSlide(n) {
+  if (n < 1 || n > total) return;
+  const oldSlide = document.querySelector('.slide.active');
+  const newSlide = document.querySelector(`[data-slide="${n}"]`);
+  if (!oldSlide || !newSlide || oldSlide === newSlide) return;
+
+  oldSlide.classList.add('exiting');
+  oldSlide.classList.remove('active');
+  setTimeout(() => oldSlide.classList.remove('exiting'), 500);
+
+  newSlide.classList.add('active');
+  current = n;
+
+  document.getElementById('slideNum').textContent = current;
+  document.getElementById('progressBar').style.width = ((current / total) * 100) + '%';
+}
+
+function nextSlide() { goToSlide(current + 1); }
+function prevSlide() { goToSlide(current - 1); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prevSlide(); }
+  if (e.key === 'Home') { e.preventDefault(); goToSlide(1); }
+  if (e.key === 'End') { e.preventDefault(); goToSlide(total); }
+});
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.nav-bar') || e.target.closest('button')) return;
+  const x = e.clientX;
+  if (x > window.innerWidth * 0.5) nextSlide(); else prevSlide();
+});
+
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+});
+</script>

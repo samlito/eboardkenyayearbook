@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Register</title>
+    <style>
+        @page {
+            margin: 30px;
+        }
+
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 13px;
+            color: #000;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #099139;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 100%;
+            height: auto;
+            margin-bottom: 5px;
+        }
+
+        .agency-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #099139;
+            text-transform: uppercase;
+        }
+
+        .doc-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            text-decoration: underline;
+        }
+
+        .meeting-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th {
+            background-color: #099139;
+            color: #fff;
+            padding: 8px;
+            border: 1px solid #000;
+            text-align: left;
+        }
+
+        td {
+            padding: 6px;
+            border: 1px solid #000;
+            vertical-align: middle;
+        }
+
+        .member-photo {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .signature-sample {
+            width: 80px;
+            height: auto;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            text-align: center;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    @php
+        $pdfLogo = setting('logo_letterhead') ?: setting('logo_main');
+        $pdfLogoPath = $pdfLogo ? public_path($pdfLogo) : public_path('images/banner.png');
+    @endphp
+    <img src="{{ file_exists($pdfLogoPath) ? $pdfLogoPath : public_path('images/banner.png') }}" alt="{{ setting('institution_acronym', 'ORG') }} Logo" class="logo">
+    <div class="agency-name">{{ setting('institution_name', 'eBoard System') }}</div>
+    <div class="doc-title">Attendance Register</div>
+</div>
+
+<div class="meeting-info">
+    <strong>Meeting:</strong> {{ $meeting->title }}<br>
+    <strong>Committee:</strong> {{ $meeting->committee->name ?? 'N/A' }}<br>
+    <strong>Date:</strong> {{ \Carbon\Carbon::parse($meeting->date)->format('d M Y') }}
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>#</th>
+
+        <th>Board Member Name</th>
+        <th>Signature</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach($members as $index => $member)
+        <tr>
+            <td>{{ $index + 1 }}</td>
+
+            <td>
+                {{ $member->assignsalutation->name ?? '' }} {{ $member->names }}
+            </td>
+            <td>
+                <img src="{{ public_path('images/signature_ceo.png') }}" alt="Signature" class="signature-sample">
+            </td>
+        </tr>
+    @endforeach
+    </tbody>
+</table>
+
+<div class="footer">
+    Generated on {{ now()->format('d M Y, h:i A') }}<br>
+    {{ setting('institution_name', 'eBoard System') }}
+</div>
+
+</body>
+</html>

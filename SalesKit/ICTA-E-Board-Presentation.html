@@ -1,0 +1,961 @@
+<title>E-Board — ICT Authority Kenya</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --green: #01A64E;
+  --deep-green: #005A2A;
+  --dark-green: #018A3F;
+  --red: #CC0000;
+  --gold: #E8A23A;
+  --black: #000000;
+  --dark: #1A1A1A;
+  --white: #FFFFFF;
+  --light: #FAFAF7;
+  --med: #EEEFEB;
+  --muted: #4D4D4D;
+  --lt-green: #B8E8CC;
+  --card-dark-bg: rgba(255,255,255,0.06);
+  --card-dark-border: rgba(255,255,255,0.10);
+  --card-light-bg: #FFFFFF;
+  --card-light-border: #DDE5DD;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background: #0A1A0E;
+  color: var(--dark);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+}
+
+.deck { position: relative; width: 100vw; height: 100vh; }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5vh 7vw;
+  padding-bottom: calc(5vh + 3.2rem);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  transform: translateX(40px);
+  overflow-y: auto;
+}
+.slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+.slide.exiting { opacity: 0; transform: translateX(-40px); }
+
+/* Accent bars */
+.slide::before, .slide::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 4px;
+  z-index: 2;
+}
+.slide::before { top: 0; }
+.slide::after { bottom: 3.2rem; }
+
+/* Slide grounds */
+.s-deep { background: var(--deep-green); color: var(--white); }
+.s-deep::before { background: var(--gold); }
+.s-deep::after { background: var(--red); }
+
+.s-white { background: var(--white); color: var(--dark); }
+.s-white::before { background: var(--green); }
+.s-white::after { background: transparent; }
+
+.s-light { background: var(--light); color: var(--dark); }
+.s-light::before { background: var(--green); }
+.s-light::after { background: transparent; }
+
+.s-green { background: var(--deep-green); color: var(--white); }
+.s-green::before { background: var(--gold); }
+.s-green::after { background: transparent; }
+
+.s-red { background: var(--light); color: var(--dark); }
+.s-red::before { background: var(--red); }
+.s-red::after { background: transparent; }
+
+/* Typography */
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  margin-bottom: 1rem;
+}
+.s-deep .eyebrow, .s-green .eyebrow { color: var(--gold); }
+.s-white .eyebrow, .s-light .eyebrow { color: var(--green); }
+.s-red .eyebrow { color: var(--red); }
+
+h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+  text-wrap: balance;
+  margin-bottom: 1.2rem;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+h3 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 0.4rem;
+}
+p, li {
+  font-size: clamp(0.82rem, 1.2vw, 1rem);
+  line-height: 1.6;
+}
+.lead {
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+  line-height: 1.55;
+  max-width: 54ch;
+}
+.s-deep .lead, .s-green .lead { color: var(--lt-green); }
+.s-white .lead, .s-light .lead { color: var(--muted); }
+
+/* Cover */
+.cover { text-align: center; align-items: center; }
+.cover h1 { font-size: clamp(2.4rem, 5vw, 4rem); margin-bottom: 0.6rem; }
+.cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(232,162,58,0.12);
+  border: 1px solid rgba(232,162,58,0.25);
+  border-radius: 100px;
+  padding: 0.5rem 1.4rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(0.65rem, 0.95vw, 0.78rem);
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.cover-sub {
+  font-size: clamp(0.88rem, 1.4vw, 1.1rem);
+  color: var(--lt-green);
+  max-width: 48ch;
+  margin: 0 auto 2.5rem;
+  line-height: 1.5;
+}
+.cover-footer {
+  font-size: clamp(0.7rem, 0.95vw, 0.8rem);
+  color: #5A8A6A;
+  margin-top: 1.5rem;
+  line-height: 1.6;
+}
+.cover-footer strong { color: var(--gold); }
+
+/* Grids */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.2rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 1.2rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.2rem; margin-top: 1.2rem; }
+
+/* Cards — on dark */
+.card {
+  border-radius: 10px;
+  padding: 1.3rem;
+}
+.s-deep .card, .s-green .card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.s-deep .card h3, .s-green .card h3 { color: var(--white); }
+.s-deep .card p, .s-green .card p { color: var(--lt-green); font-size: clamp(0.75rem, 1vw, 0.85rem); }
+
+/* Cards — on light */
+.s-white .card, .s-light .card, .s-red .card {
+  background: var(--white);
+  border: 1px solid var(--card-light-border);
+}
+.s-white .card h3, .s-light .card h3, .s-red .card h3 { color: var(--dark); }
+.s-white .card p, .s-light .card p, .s-red .card p { color: var(--muted); font-size: clamp(0.75rem, 1vw, 0.85rem); }
+
+.card-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.7rem;
+  font-weight: 700;
+}
+.ci-green { background: rgba(1,166,78,0.12); color: var(--green); }
+.ci-gold { background: rgba(232,162,58,0.12); color: var(--gold); }
+.ci-red { background: rgba(204,0,0,0.10); color: var(--red); }
+.ci-dark { background: rgba(0,90,42,0.10); color: var(--deep-green); }
+
+.s-deep .ci-green, .s-green .ci-green { background: rgba(1,166,78,0.25); color: #60D890; }
+.s-deep .ci-gold, .s-green .ci-gold { background: rgba(232,162,58,0.25); color: #FFD080; }
+.s-deep .ci-red, .s-green .ci-red { background: rgba(204,0,0,0.20); color: #FF8080; }
+.s-deep .ci-dark, .s-green .ci-dark { background: rgba(255,255,255,0.10); color: #80D0A0; }
+
+/* Stats */
+.stat { text-align: center; padding: 0.8rem; }
+.stat-value {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.2rem;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  font-size: clamp(0.65rem, 0.85vw, 0.75rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--lt-green);
+}
+
+/* Pipeline */
+.pipeline { display: flex; gap: 0; margin-top: 1.2rem; position: relative; }
+.pipeline-step { flex: 1; text-align: center; padding: 0.6rem 0.2rem; }
+.pipeline-num {
+  width: 1.8rem; height: 1.8rem;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 0.7rem;
+  margin-bottom: 0.3rem;
+  color: var(--white);
+}
+.pn-green { background: var(--green); }
+.pn-gold { background: var(--gold); }
+.pn-red { background: var(--red); }
+.pn-dark { background: var(--dark-green); }
+.pipeline-label {
+  font-size: clamp(0.55rem, 0.75vw, 0.68rem);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.s-white .pipeline-label { color: var(--muted); }
+
+/* Feature list */
+.feat-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.feat-list li { padding-left: 1.4rem; position: relative; font-size: clamp(0.78rem, 1.05vw, 0.9rem); }
+.feat-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.4rem;
+  width: 0.5rem; height: 0.5rem;
+  border-radius: 50%;
+  background: var(--green);
+}
+.s-deep .feat-list li::before, .s-green .feat-list li::before { background: var(--gold); }
+
+/* Comparison table */
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: clamp(0.68rem, 0.92vw, 0.8rem);
+}
+.cmp-table th {
+  background: var(--deep-green);
+  color: var(--white);
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.6rem, 0.82vw, 0.72rem);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cmp-table td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #DDE5DD; }
+.cmp-table tr:nth-child(even) td { background: #F5F5F0; }
+.cmp-table .yes { color: var(--green); font-weight: 700; }
+.cmp-table .no { color: var(--red); }
+.cmp-table .partial { color: var(--gold); }
+
+/* Audience grid */
+.aud-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.8rem; margin-top: 1.2rem; }
+.aud-pill {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.7rem 1rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+}
+.aud-icon {
+  width: 2rem; height: 2rem;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  background: rgba(1,166,78,0.2);
+  flex-shrink: 0;
+}
+.aud-text { font-size: clamp(0.72rem, 0.95vw, 0.82rem); font-weight: 600; color: var(--white); line-height: 1.3; }
+
+/* CTA */
+.cta-box {
+  background: rgba(232,162,58,0.10);
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  max-width: 34rem;
+  align-self: center;
+}
+.cta-box h3 { color: var(--gold); font-size: clamp(1rem, 1.5vw, 1.2rem); }
+.cta-box p { color: var(--lt-green); margin-top: 0.3rem; font-size: clamp(0.8rem, 1vw, 0.9rem); }
+
+/* Nav */
+.nav-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 3.2rem;
+  background: rgba(0,30,14,0.94);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 100;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.nav-counter {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5A8A6A;
+  font-variant-numeric: tabular-nums;
+  min-width: 5rem;
+}
+.nav-progress {
+  flex: 1;
+  max-width: 20rem;
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin: 0 1.5rem;
+  overflow: hidden;
+}
+.nav-progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.nav-btns { display: flex; gap: 0.5rem; }
+.nav-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #7AAA8A;
+  width: 2rem; height: 2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.15); color: var(--white); }
+.nav-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.nav-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #3A6A4A;
+  letter-spacing: 0.5px;
+}
+
+/* highlight text */
+.hl-gold { color: var(--gold); }
+.hl-green { color: var(--green); }
+.hl-red { color: var(--red); }
+.center { text-align: center; }
+.note {
+  font-size: clamp(0.78rem, 1.05vw, 0.9rem);
+  margin-top: 1.5rem;
+  text-align: center;
+}
+.s-deep .note, .s-green .note { color: var(--lt-green); }
+.s-white .note, .s-light .note { color: var(--muted); }
+
+/* Vision/Mission cards */
+.vm-card {
+  padding: 1.2rem 1.5rem;
+  border-radius: 10px;
+  border-left: 4px solid var(--green);
+}
+.s-white .vm-card, .s-light .vm-card {
+  background: #F0FAF4;
+  border-color: var(--green);
+}
+.vm-card h3 { font-size: clamp(0.8rem, 1.1vw, 0.95rem); color: var(--green); margin-bottom: 0.3rem; }
+.vm-card p { font-size: clamp(0.82rem, 1.1vw, 0.95rem); font-style: italic; color: var(--dark); }
+
+@media (max-width: 900px) {
+  .grid-3, .grid-4 { grid-template-columns: repeat(2,1fr); }
+  .pipeline { flex-wrap: wrap; }
+  .pipeline-step { flex: 0 0 20%; }
+  .aud-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide { transition: none; }
+  .nav-progress-fill { transition: none; }
+}
+</style>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide s-deep cover active" data-slide="1">
+    <div class="cover-badge">ICT Authority Kenya</div>
+    <h1>E-BOARD</h1>
+    <h2 style="font-size:clamp(1.6rem,3vw,2.4rem);margin-bottom:0.8rem">Digital Board Governance Platform</h2>
+    <p class="cover-sub">A whole-of-government solution for managing board operations, meeting workflows, and institutional accountability</p>
+    <div class="cover-footer">
+      Ministry of Information, Communications & The Digital Economy<br>
+      <strong>ICT Authority  |  www.icta.go.ke</strong>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: ABOUT ICTA -->
+  <div class="slide s-white" data-slide="2">
+    <p class="eyebrow">About Us</p>
+    <h2>ICT Authority Kenya</h2>
+    <p class="lead">A State Corporation under the Ministry of Information, Communications & The Digital Economy, established in August 2013 through the merger of Kenya ICT Board, Government IT Services, and the e-Government Directorate.</p>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div class="vm-card">
+        <h3>Vision</h3>
+        <p>"A digitally empowered society."</p>
+      </div>
+      <div class="vm-card">
+        <h3>Mission</h3>
+        <p>"To digitally empower society through the provision of quality ICT services, implementation of industry best practices, and by leveraging technology to create new opportunities."</p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div>
+        <h3>Formed through the merger of:</h3>
+        <ul class="feat-list" style="margin-top:0.5rem">
+          <li>Kenya ICT Board</li>
+          <li>Government IT Services (GITS)</li>
+          <li>e-Government Directorate</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Core Values:</h3>
+        <ul class="feat-list" style="margin-top:0.5rem">
+          <li><strong>Innovation</strong> — Pioneering digital solutions</li>
+          <li><strong>Citizen-Focus</strong> — Service delivery first</li>
+          <li><strong>Transparency</strong> — Open and accountable</li>
+          <li><strong>Agility</strong> — Responsive to change</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note" style="color:var(--green);font-weight:600">Guided by the National Digital Masterplan 2022–2032 and Strategic Plan 2024–2027</p>
+  </div>
+
+  <!-- SLIDE 3: ICTA MANDATE -->
+  <div class="slide s-deep" data-slide="3">
+    <p class="eyebrow">Our Mandate</p>
+    <h2>Driving Digital Transformation in Government</h2>
+    <div class="grid-3" style="margin-top:1.5rem">
+      <div class="card">
+        <div class="card-icon ci-green">&#9881;</div>
+        <h3>ICT Standards</h3>
+        <p>Setting and enforcing ICT standards for all public-sector entities across national and county government</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-gold">&#127760;</div>
+        <h3>e-Government Services</h3>
+        <p>Championing the rollout of e-Government services and driving digital service delivery to citizens</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-green">&#128268;</div>
+        <h3>ICT Infrastructure</h3>
+        <p>Establishing and maintaining secure national ICT infrastructure including the NOFBI backbone</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-gold">&#128218;</div>
+        <h3>Digital Literacy</h3>
+        <p>Promoting ICT literacy and digital skills development across government and public institutions</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-green">&#128187;</div>
+        <h3>Critical ICT Projects</h3>
+        <p>Overseeing and supervising critical government ICT projects and digital transformation initiatives</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-gold">&#127970;</div>
+        <h3>eGov Stack</h3>
+        <p>Operating the integrated whole-of-government platform hosting eCitizen and digital government services</p>
+      </div>
+    </div>
+    <p class="note"><strong class="hl-gold">E-Board</strong> is part of ICTA's mission to digitize government operations.<br>Board governance is a critical function in every state corporation and public institution.</p>
+  </div>
+
+  <!-- SLIDE 4: THE GOVERNANCE CHALLENGE -->
+  <div class="slide s-white" data-slide="4">
+    <p class="eyebrow">The Challenge</p>
+    <h2>Board Governance in Government Institutions Is Still Largely Manual</h2>
+    <p class="lead">Most state corporations and public institutions manage board operations through fragmented, manual processes that create governance risks.</p>
+    <div class="grid-4" style="margin-top:1.5rem">
+      <div class="card">
+        <div class="card-icon ci-gold">&#9993;</div>
+        <h3>Email-Based Distribution</h3>
+        <p>Board papers circulated as email attachments with no version control or access tracking</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-green">&#128196;</div>
+        <h3>Physical Board Packs</h3>
+        <p>Printed documents manually assembled, distributed, and often misplaced or leaked</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-red">&#128172;</div>
+        <h3>WhatsApp Groups</h3>
+        <p>Board discussions on personal messaging apps with no audit trail or institutional control</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-dark">&#128203;</div>
+        <h3>Scattered Records</h3>
+        <p>Minutes, resolutions, and action items tracked in spreadsheets or filing cabinets</p>
+      </div>
+    </div>
+    <p class="note hl-red" style="font-weight:600">These challenges affect governance, compliance, and accountability across hundreds of government boards and state corporations in Kenya.</p>
+  </div>
+
+  <!-- SLIDE 5: THE COST -->
+  <div class="slide s-deep" data-slide="5">
+    <p class="eyebrow" style="color:var(--gold)">Why It Matters</p>
+    <h2>The Cost of Fragmented Board Processes</h2>
+    <div class="grid-4" style="margin-top:1.5rem">
+      <div class="stat"><div class="stat-value">0%</div><div class="stat-label">Audit Trail on Email</div></div>
+      <div class="stat"><div class="stat-value">72hrs</div><div class="stat-label">Paper Distribution Time</div></div>
+      <div class="stat"><div class="stat-value">40%</div><div class="stat-label">Resolutions Not Tracked</div></div>
+      <div class="stat"><div class="stat-value">0</div><div class="stat-label">Version Control</div></div>
+    </div>
+    <div class="grid-2" style="margin-top:2rem">
+      <div class="card">
+        <h3>Governance Risk</h3>
+        <p>No centralized record of board decisions, conflict declarations, or attendance. Audit queries go unanswered. Mwongozo compliance becomes aspirational rather than operational.</p>
+      </div>
+      <div class="card">
+        <h3>Operational Inefficiency</h3>
+        <p>Corporation Secretaries spend days assembling board packs. CEOs review papers without structured workflows. Follow-up on resolutions depends on personal memory.</p>
+      </div>
+    </div>
+    <p class="note">These inefficiencies are addressable through a purpose-built digital governance platform.</p>
+  </div>
+
+  <!-- SLIDE 6: INTRODUCING E-BOARD -->
+  <div class="slide s-deep" data-slide="6">
+    <p class="eyebrow">The Solution</p>
+    <h1>E-Board</h1>
+    <p class="lead">A ready-to-deploy digital governance platform that manages the entire board meeting lifecycle — from annual planning to resolution tracking — in one secure, centralized system.</p>
+    <div class="grid-3" style="margin-top:1.8rem">
+      <div class="card">
+        <div class="card-icon ci-green">&#10003;</div>
+        <h3>Purpose-Built for Governance</h3>
+        <p>Designed specifically for board and committee operations in government institutions, not adapted from generic tools</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-gold">&#9889;</div>
+        <h3>Rapid Deployment</h3>
+        <p>6-step setup wizard configures the platform for any institution in under an hour, with full white-label branding</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-green">&#127468;&#127466;</div>
+        <h3>Built for Kenya</h3>
+        <p>Kenyan fiscal year (July–June), 10-day notice compliance, 47 counties pre-loaded, Mwongozo-aligned</p>
+      </div>
+    </div>
+    <p class="note"><strong class="hl-gold">Developed to support ICTA's mandate of digitizing government operations</strong></p>
+  </div>
+
+  <!-- SLIDE 7: 10-STAGE WORKFLOW -->
+  <div class="slide s-white" data-slide="7">
+    <p class="eyebrow">Core Architecture</p>
+    <h2>Complete 10-Stage Meeting Lifecycle</h2>
+    <p class="lead">Every board meeting follows a structured, auditable workflow from initiation to minutes.</p>
+    <div class="pipeline" style="margin-top:1rem">
+      <div class="pipeline-step"><div class="pipeline-num pn-green">1</div><div class="pipeline-label">Meeting Initiation</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-dark">2</div><div class="pipeline-label">Internal Notice</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-gold">3</div><div class="pipeline-label">CEO Approval</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-green">4</div><div class="pipeline-label">Officer Assignments</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-dark">5</div><div class="pipeline-label">Paper Preparation</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-gold">6</div><div class="pipeline-label">Director Review</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-green">7</div><div class="pipeline-label">CEO Review</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-dark">8</div><div class="pipeline-label">Agenda Building</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-red">9</div><div class="pipeline-label">Live Meeting</div></div>
+      <div class="pipeline-step"><div class="pipeline-num pn-gold">10</div><div class="pipeline-label">Minutes Capture</div></div>
+    </div>
+    <div class="grid-2" style="margin-top:1.2rem">
+      <div class="card">
+        <h3>Multi-Stage Paper Review</h3>
+        <p>Board papers flow through Officer, Director, then CEO with comments, annotations, and version tracking at each stage. Papers can be recalled and resubmitted.</p>
+      </div>
+      <div class="card">
+        <h3>Live Meeting Operations</h3>
+        <p>Digital attendance register, OTP-verified conflict of interest declarations with e-signatures, real-time agenda management, and structured minutes capture.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: BOARD PAPER MANAGEMENT -->
+  <div class="slide s-light" data-slide="8">
+    <p class="eyebrow">Key Capability</p>
+    <h2>Board Paper Management</h2>
+    <p class="lead">A structured workflow replaces email attachments with controlled, versioned, reviewable board papers.</p>
+    <div class="grid-3" style="margin-top:1.2rem">
+      <div class="card">
+        <div class="card-icon ci-green">&#128221;</div>
+        <h3>Structured Submission</h3>
+        <p>Officers prepare papers with supporting annexures. Multiple file formats supported up to 20MB per document.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-gold">&#128269;</div>
+        <h3>Three-Stage Review</h3>
+        <p>Papers reviewed by Director, then CEO. Each reviewer can approve, reject with comments, or add annotations.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-green">&#128200;</div>
+        <h3>Version History</h3>
+        <p>Every version of a paper is retained. Rejected papers are revised and resubmitted with a complete audit trail.</p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:0.8rem">
+      <div class="card">
+        <div class="card-icon ci-dark">&#128276;</div>
+        <h3>Automated Notifications</h3>
+        <p>Email notifications at every status change — submission, review, approval, rejection. 33+ email templates for the complete workflow.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon ci-red">&#128274;</div>
+        <h3>Controlled Access</h3>
+        <p>Board members see only papers for their committees. Three visibility levels ensure confidential papers reach only authorized recipients.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: MEETING LIFECYCLE -->
+  <div class="slide s-white" data-slide="9">
+    <p class="eyebrow">Key Capability</p>
+    <h2>Meeting Lifecycle Management</h2>
+    <div class="grid-2" style="margin-top:0.8rem">
+      <div>
+        <ul class="feat-list">
+          <li><strong>Almanac Planning</strong> — Annual meeting schedule tied to financial year with CEO approval</li>
+          <li><strong>Meeting Initiation</strong> — Create meetings from approved almanac with auto-populated details</li>
+          <li><strong>10-Day Board Notice</strong> — Automated notice generation with Kenyan governance compliance</li>
+          <li><strong>Agenda Building</strong> — Drag-and-drop agenda items, assign papers to agenda points</li>
+          <li><strong>Attendance Tracking</strong> — Digital register with PDF and CSV export</li>
+          <li><strong>Minutes Capture</strong> — Per-agenda-item minutes with Word document export</li>
+          <li><strong>Board Resolutions</strong> — Record, assign, set due dates, and track through completion</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <h3>Conflict of Interest Register</h3>
+          <p>Board members declare conflicts with OTP email verification and digital signature capture. Exportable as PDF or CSV for compliance records.</p>
+        </div>
+        <div class="card">
+          <h3>Resolution Tracking</h3>
+          <p>Every resolution is assigned to a responsible officer with a due date. Status tracked: Pending → In Progress → Completed or Overdue.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: BOARD PORTAL -->
+  <div class="slide s-deep" data-slide="10">
+    <p class="eyebrow">Board Member Experience</p>
+    <h2>iPad-Optimized Board Portal</h2>
+    <p class="lead">Board members access a dedicated, clean portal designed for tablet and desktop use.</p>
+    <div class="grid-3" style="margin-top:1.2rem">
+      <div class="card"><div class="card-icon ci-green">&#128197;</div><h3>Meeting Calendar</h3><p>Visual calendar showing all scheduled meetings for the member's committees</p></div>
+      <div class="card"><div class="card-icon ci-gold">&#128196;</div><h3>Board Papers</h3><p>View approved papers with digital sticky notes for personal annotations</p></div>
+      <div class="card"><div class="card-icon ci-green">&#128227;</div><h3>Official Notices</h3><p>Access meeting notices and download them directly from the portal</p></div>
+      <div class="card"><div class="card-icon ci-gold">&#128101;</div><h3>My Committees</h3><p>View committee memberships, details, and committee-specific documents</p></div>
+      <div class="card"><div class="card-icon ci-green">&#128214;</div><h3>Document Repository</h3><p>Access categorized institutional documents with controlled visibility</p></div>
+      <div class="card"><div class="card-icon ci-gold">&#127918;</div><h3>Active Meetings</h3><p>Join live meetings, view agenda, submit conflict declarations in real time</p></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: SECURITY -->
+  <div class="slide s-red" data-slide="11">
+    <p class="eyebrow">Security & Compliance</p>
+    <h2>Enterprise-Grade Security for Government</h2>
+    <div class="grid-2" style="margin-top:1rem">
+      <div>
+        <div class="card" style="margin-bottom:0.8rem"><div class="card-icon ci-green">&#128274;</div><h3>Two-Factor Authentication</h3><p>OTP-based 2FA via email on every login. 6-digit codes with 5-minute expiry, throttled to prevent brute force.</p></div>
+        <div class="card" style="margin-bottom:0.8rem"><div class="card-icon ci-dark">&#128100;</div><h3>Role-Based Access Control</h3><p>10 system roles with granular permissions. Each user sees only what their role allows — from CEO to Board Member.</p></div>
+        <div class="card"><div class="card-icon ci-red">&#128272;</div><h3>Account Protection</h3><p>Automatic lockout after failed login attempts. Forced password change on first login. User status enforcement.</p></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:0.8rem"><div class="card-icon ci-dark">&#128209;</div><h3>Comprehensive Audit Trail</h3><p>Every action logged — who, what, when, from where. Before-and-after values captured. IP address and browser recorded. Exportable as PDF.</p></div>
+        <div class="card" style="margin-bottom:0.8rem"><div class="card-icon ci-green">&#128221;</div><h3>Document Access Control</h3><p>Three visibility levels: all board members, committee-only, or specific named individuals. Download tracking on every document.</p></div>
+        <div class="card"><div class="card-icon ci-green">&#9989;</div><h3>CSRF & Encryption</h3><p>Cross-site request forgery protection, encrypted cookies, secure session management, API token auth via Laravel Sanctum.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: DOCUMENT MANAGEMENT -->
+  <div class="slide s-deep" data-slide="12">
+    <p class="eyebrow">Institutional Memory</p>
+    <h2>Document Repository & Exports</h2>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div>
+        <h3 style="color:var(--gold);margin-bottom:0.8rem">Centralized Document Repository</h3>
+        <ul class="feat-list">
+          <li>Organized by categories with icons and display ordering</li>
+          <li>Supports PDF, Word, Excel, PowerPoint, CSV, images — up to 20MB</li>
+          <li>Three access tiers: all members, committee-only, or named individuals</li>
+          <li>Download tracking and access verification</li>
+          <li>Accessible to board members through the portal</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="color:var(--gold);margin-bottom:0.8rem">Generated Reports & Exports</h3>
+        <ul class="feat-list">
+          <li><strong>PDF:</strong> Almanac, board notices (with letterhead), attendance register, conflict register, audit logs</li>
+          <li><strong>CSV:</strong> Attendance register, conflict register (Excel-compatible)</li>
+          <li><strong>Word:</strong> Meeting minutes with structured formatting</li>
+          <li><strong>Digital Signatures:</strong> Signature pad capture and PDF document signing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: WHITE-LABEL -->
+  <div class="slide s-white" data-slide="13">
+    <p class="eyebrow">Deployment</p>
+    <h2>White-Label Platform with Rapid Setup</h2>
+    <p class="lead">E-Board adapts to any institution's identity and deploys in hours, not months.</p>
+    <div class="grid-3" style="margin-top:1.2rem">
+      <div class="card"><div class="card-icon ci-green">&#127912;</div><h3>Full Branding Control</h3><p>Institution logos, colors, letterhead, favicon, CEO signature image, login background — all configurable from the admin panel.</p></div>
+      <div class="card"><div class="card-icon ci-gold">&#128736;</div><h3>6-Step Setup Wizard</h3><p>Institution identity, branding, workflow settings, role labels, email configuration, admin account — guided setup in under an hour.</p></div>
+      <div class="card"><div class="card-icon ci-dark">&#128204;</div><h3>Configurable Roles</h3><p>Rename any of the 10 system roles to match your institution's terminology. Customize signatory titles and references.</p></div>
+    </div>
+    <div class="grid-2" style="margin-top:0.8rem">
+      <div class="card">
+        <h3>Technology Stack</h3>
+        <table class="cmp-table" style="margin-top:0.4rem">
+          <tr><td><strong>Backend</strong></td><td>Laravel (PHP 8+), MySQL</td></tr>
+          <tr><td><strong>Frontend</strong></td><td>Bootstrap 5, Alpine.js, Tailwind CSS</td></tr>
+          <tr><td><strong>PDF Engine</strong></td><td>DomPDF with institutional letterhead</td></tr>
+          <tr><td><strong>Documents</strong></td><td>PHPWord for Word exports</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Infrastructure Requirements</h3>
+        <table class="cmp-table" style="margin-top:0.4rem">
+          <tr><td><strong>Server</strong></td><td>PHP 8.0+, MySQL 5.7+</td></tr>
+          <tr><td><strong>Web Server</strong></td><td>Apache or Nginx</td></tr>
+          <tr><td><strong>Email</strong></td><td>Any SMTP server</td></tr>
+          <tr><td><strong>Hosting</strong></td><td>Self-hosted or cloud with SLA</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: COMPARISON -->
+  <div class="slide s-light" data-slide="14">
+    <p class="eyebrow">Comparison</p>
+    <h2>E-Board vs. Current Approaches</h2>
+    <div style="overflow-x:auto">
+    <table class="cmp-table">
+      <thead><tr><th>Capability</th><th>E-Board</th><th>Email</th><th>WhatsApp</th><th>Shared Drives</th><th>Manual</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Board Paper Workflow</strong></td><td class="yes">&#10003; Full 3-stage</td><td class="partial">~ Attachments</td><td class="no">&#10007;</td><td class="partial">~ Files only</td><td class="no">&#10007;</td></tr>
+        <tr><td><strong>Meeting Lifecycle</strong></td><td class="yes">&#10003; 10-stage</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="partial">~ Manual</td></tr>
+        <tr><td><strong>Agenda Management</strong></td><td class="yes">&#10003; Full</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="partial">~ Documents</td><td class="partial">~ Paper</td></tr>
+        <tr><td><strong>Resolution Tracking</strong></td><td class="yes">&#10003; Full</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="partial">~ Spreadsheet</td></tr>
+        <tr><td><strong>Audit Trail</strong></td><td class="yes">&#10003; Automatic</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="partial">~ File logs</td><td class="no">&#10007;</td></tr>
+        <tr><td><strong>Role-Based Access</strong></td><td class="yes">&#10003; 10 roles</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="partial">~ Folders</td><td class="no">&#10007;</td></tr>
+        <tr><td><strong>10-Day Notice</strong></td><td class="yes">&#10003; Automated</td><td class="partial">~ Manual</td><td class="partial">~ Manual</td><td class="no">&#10007;</td><td class="partial">~ Manual</td></tr>
+        <tr><td><strong>Conflict of Interest</strong></td><td class="yes">&#10003; OTP + Signature</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="partial">~ Paper forms</td></tr>
+        <tr><td><strong>Institutional Branding</strong></td><td class="yes">&#10003; Full</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="no">&#10007;</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: TARGET INSTITUTIONS -->
+  <div class="slide s-deep" data-slide="15">
+    <p class="eyebrow">Target Institutions</p>
+    <h2>Built for Government & Public Bodies</h2>
+    <div class="aud-grid">
+      <div class="aud-pill"><div class="aud-icon">&#127963;</div><div class="aud-text">Government Ministries & Agencies</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#127970;</div><div class="aud-text">State Corporations</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#127963;</div><div class="aud-text">County Government Entities</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#127979;</div><div class="aud-text">Universities & Public Institutions</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#127758;</div><div class="aud-text">NGOs & Foundations</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#9878;</div><div class="aud-text">Regulatory Bodies</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#128188;</div><div class="aud-text">Professional Associations</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#127970;</div><div class="aud-text">SAGAs & Parastatals</div></div>
+      <div class="aud-pill"><div class="aud-icon">&#128200;</div><div class="aud-text">Multi-Entity Groups</div></div>
+    </div>
+    <div class="grid-3" style="margin-top:1.5rem">
+      <div class="card"><h3>10 Configurable Roles</h3><p>Superadmin, CEO, Corporation Secretary, Director, Division Head, DD Internal Audit, DD ICT, Board Member, Officer, Admin</p></div>
+      <div class="card"><h3>Kenyan Compliance</h3><p>July–June fiscal year, 10-day notice, conflict of interest register, 47 counties, Mwongozo-aligned workflows</p></div>
+      <div class="card"><h3>Committee Structure</h3><p>Unlimited boards and committees with audit committee designation. Role-specific access controls.</p></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 16: IMPLEMENTATION -->
+  <div class="slide s-white" data-slide="16">
+    <p class="eyebrow">Implementation</p>
+    <h2>Implementation Timeline</h2>
+    <p class="lead">A structured 4-phase engagement ensuring thorough setup, knowledge transfer, and successful go-live.</p>
+    <div class="grid-2" style="margin-top:1rem">
+      <div>
+        <div class="card" style="margin-bottom:0.7rem;border-left:4px solid var(--green)">
+          <h3>Phase 1: Platform Setup, Customization & Configuration <span style="color:var(--green);font-size:0.75rem;font-weight:700">WEEK 1–2 (14 DAYS)</span></h3>
+          <p>Server provisioning, E-Board installation, full institutional branding (logos, colors, letterhead), role configuration, workflow customization, SMTP email setup, organizational structure definition, committee setup, and system testing.</p>
+        </div>
+        <div class="card" style="margin-bottom:0.7rem;border-left:4px solid var(--gold)">
+          <h3>Phase 2: Data Migration <span style="color:var(--gold);font-size:0.75rem;font-weight:700">3–5 DAYS</span></h3>
+          <p>Onboard all board members with profiles, photos, and appointment documents. Create financial year, populate almanac with meeting schedule, upload existing institutional documents to the repository.</p>
+        </div>
+        <div class="card" style="margin-bottom:0.7rem;border-left:4px solid var(--green)">
+          <h3>Phase 3: Training <span style="color:var(--green);font-size:0.75rem;font-weight:700">1 WEEK (5 DAYS)</span></h3>
+          <p>Hands-on role-specific training for Corporation Secretary, CEO, Directors, Division Heads, Officers, and Board Members. Each role trained on their specific workflows and portal access.</p>
+        </div>
+        <div class="card" style="border-left:4px solid var(--red)">
+          <h3>Phase 4: Go-Live & Handover <span style="color:var(--red);font-size:0.75rem;font-weight:700">POST-TRAINING</span></h3>
+          <p>First board meeting managed end-to-end through E-Board with on-site ICTA support. System handover, documentation, and transition to ongoing support.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="background:var(--light);margin-bottom:0.7rem">
+          <h3>ICTA Support Team</h3>
+          <p style="margin-top:0.4rem">Two (2) Principal ICT Officers from ICT Authority will be facilitated on-site for the <strong>entire implementation period</strong> to provide:</p>
+          <ul class="feat-list" style="margin-top:0.5rem">
+            <li>Platform installation and configuration</li>
+            <li>Institutional customization and branding</li>
+            <li>Data migration and system setup</li>
+            <li>Hands-on training for all user roles</li>
+            <li>Go-live support during first board meeting</li>
+            <li>Knowledge transfer and documentation</li>
+          </ul>
+        </div>
+        <div class="card" style="background:var(--deep-green);border-color:var(--dark-green)">
+          <h3 style="color:var(--white)">Hosting</h3>
+          <p style="color:var(--lt-green);margin-top:0.3rem">If your institution has available server space, E-Board can be hosted on your own infrastructure using the recommended minimum specifications:</p>
+          <ul class="feat-list" style="margin-top:0.4rem">
+            <li style="color:var(--lt-green)">PHP 8.0+ with required extensions</li>
+            <li style="color:var(--lt-green)">MySQL 5.7+ or MariaDB 10.3+</li>
+            <li style="color:var(--lt-green)">Apache 2.4+ or Nginx</li>
+            <li style="color:var(--lt-green)">SSL certificate (required)</li>
+            <li style="color:var(--lt-green)">SMTP email service</li>
+            <li style="color:var(--lt-green)">Minimum 2GB RAM, 20GB storage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 17: COST -->
+  <div class="slide s-light" data-slide="17">
+    <p class="eyebrow">Investment</p>
+    <h2>Cost Implication</h2>
+    <p class="lead">A one-time consultancy engagement covering full platform deployment, customization, training, and go-live support.</p>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="card" style="border:2px solid var(--green);text-align:center;padding:2rem">
+          <p style="font-size:clamp(0.75rem,1vw,0.85rem);color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:0.5rem">ICTA Consultancy Fee</p>
+          <div style="font-family:'Manrope',sans-serif;font-size:clamp(2.2rem,4vw,3.2rem);font-weight:800;color:var(--deep-green);line-height:1">KES 350,000</div>
+          <p style="font-size:clamp(0.75rem,1vw,0.85rem);color:var(--muted);margin-top:0.5rem">One-time fee — no recurring license costs</p>
+        </div>
+        <div class="card" style="border:2px solid var(--gold)">
+          <h3 style="color:var(--gold)">Facilitation for 2 Principal ICT Officers</h3>
+          <p>Covers facilitation (transport, accommodation, and daily subsistence) for two ICTA Principal ICT Officers deployed on-site at the institution for the entire implementation period (~4 weeks).</p>
+          <p style="margin-top:0.5rem;font-size:clamp(0.72rem,0.95vw,0.82rem);color:var(--muted);font-style:italic">Facilitation costs to be determined based on institution location and prevailing government rates.</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="card">
+          <h3>What's Included</h3>
+          <ul class="feat-list" style="margin-top:0.5rem">
+            <li><strong>Platform Setup & Customization</strong> — Full installation, branding, and configuration (14 days)</li>
+            <li><strong>Data Migration</strong> — Board member onboarding and document setup (3–5 days)</li>
+            <li><strong>Staff Training</strong> — Role-specific hands-on training for all users (1 week)</li>
+            <li><strong>Go-Live Support</strong> — On-site support during first board meeting</li>
+            <li><strong>Knowledge Transfer</strong> — System documentation and admin handover</li>
+            <li><strong>2 ICTA Officers</strong> — Dedicated technical team on-site throughout</li>
+          </ul>
+        </div>
+        <div class="card" style="background:var(--deep-green);border-color:var(--dark-green)">
+          <h3 style="color:var(--gold)">No Additional Costs If Self-Hosted</h3>
+          <p style="color:var(--lt-green)">If the institution provides server space meeting the minimum specifications, there are no separate hosting charges. E-Board runs on standard LAMP/LEMP infrastructure already available in most government data centres.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 18: CTA -->
+  <div class="slide s-deep cover" data-slide="18">
+    <p class="eyebrow">Next Steps</p>
+    <h1>Ready to Digitize<br>Board Governance?</h1>
+    <p class="lead" style="max-width:46ch;margin:0 auto 1.5rem;text-align:center">We invite your institution to experience E-Board through a guided demonstration and pilot programme.</p>
+    <div class="grid-3" style="max-width:52rem">
+      <div class="card" style="text-align:center">
+        <div class="stat-value" style="font-size:2rem;color:var(--green)">1</div>
+        <h3>Live Demo</h3>
+        <p>45-minute walkthrough of E-Board configured for your institution's workflow</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="stat-value" style="font-size:2rem;color:var(--gold)">2</div>
+        <h3>30-Day Pilot</h3>
+        <p>Full platform access for one board or committee with training and support</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="stat-value" style="font-size:2rem;color:var(--red)">3</div>
+        <h3>Go Live</h3>
+        <p>Full deployment with institutional branding, data migration, and support SLA</p>
+      </div>
+    </div>
+    <div class="cta-box">
+      <h3>ICT Authority Kenya</h3>
+      <p>www.icta.go.ke  |  A Digitally Empowered Society</p>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bar">
+  <span class="nav-counter"><span id="sn">1</span> / 18</span>
+  <span class="nav-title">E-BOARD — ICT AUTHORITY KENYA</span>
+  <div class="nav-progress"><div class="nav-progress-fill" id="pb" style="width:5.56%"></div></div>
+  <div class="nav-btns">
+    <button class="nav-btn" onclick="prev()" aria-label="Previous">&#9664;</button>
+    <button class="nav-btn" onclick="next()" aria-label="Next">&#9654;</button>
+  </div>
+</div>
+
+<script>
+let c=1;const t=18;
+function go(n){if(n<1||n>t)return;const o=document.querySelector('.slide.active'),s=document.querySelector(`[data-slide="${n}"]`);if(!o||!s||o===s)return;o.classList.add('exiting');o.classList.remove('active');setTimeout(()=>o.classList.remove('exiting'),450);s.classList.add('active');c=n;document.getElementById('sn').textContent=c;document.getElementById('pb').style.width=((c/t)*100)+'%';}
+function next(){go(c+1);}function prev(){go(c-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}if(e.key==='Home'){e.preventDefault();go(1);}if(e.key==='End'){e.preventDefault();go(t);}});
+document.addEventListener('click',e=>{if(e.target.closest('.nav-bar')||e.target.closest('button'))return;e.clientX>window.innerWidth*0.5?next():prev();});
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;});document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50){d>0?next():prev();}});
+</script>
